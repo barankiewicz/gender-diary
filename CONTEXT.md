@@ -55,9 +55,11 @@ labels and no configurable range.
 ### Gender tracking
 
 **Gender dimension**:
-A named axis an entry can be logged on, with two endpoint labels and a numeric
-range. Built-in or user-defined.
-_Avoid_: Axis, scale, metric (metric means something else here)
+One named thing an entry logs a number against, between two labelled ends, within
+a range. Built-in or user-defined. Screens say **scale** to the person using the
+app; everything the project says to itself says gender dimension.
+_Avoid_: Axis, metric (metric means something else here), scale outside
+user-facing wording
 
 **Dimension value**:
 One entry's number on one gender dimension. Belongs to the entry, not to the
@@ -103,14 +105,19 @@ _Avoid_: Colour metric, measure, dimension
 A day's metric, averaged across that day's entries, in native units. What a
 calendar cell and a stats point stand for on a multi-entry day.
 
+**Range**:
+The lowest and highest value a metric can take: mood 1 to 5, a gender dimension
+whatever it was defined with. Not the stretch of days a stats chart covers, which
+the screens also call a range.
+_Avoid_: Scale, bounds
+
 **Native units**:
-A value in the scale it was logged on: mood 1 to 5, a gender dimension within its
-own range. What every number shown to a person is in, including charts, averages
-and tag insights.
+A value as it was logged, within its metric's own range. What every number shown
+to a person is in, including charts, averages and tag insights.
 
 **Normalized value**:
-A value rescaled to 0 to 1, used only to drive colour intensity so that metrics on
-different scales shade comparably. Never displayed as a number.
+A value rescaled to 0 to 1, used only to drive colour intensity so that metrics
+with different ranges shade comparably. Never displayed as a number.
 
 **Streak**:
 The run of consecutive epoch days, ending today or yesterday, on which at least
