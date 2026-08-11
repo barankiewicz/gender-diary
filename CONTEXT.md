@@ -8,6 +8,15 @@ this glossary.
 
 ### Journaling
 
+**Journal**:
+Everything this device holds about the user's transition: entries, photos,
+milestones, vocabulary, lab results and reminders. Reached through one handle bound
+to a database driver, which mints identity and owns every invariant; nothing else
+touches storage. Portable preferences travel alongside it in an archive but are not
+part of it.
+_Avoid_: Store (the demo store was a different thing), database (the journal is what
+is held, not where)
+
 **Entry**:
 One logged moment, carrying a mood, gender dimension values, tags, a note, and
 photos. A day can hold several. Always holds at least one of those five; an entry
