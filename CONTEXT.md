@@ -116,6 +116,12 @@ different scales shade comparably. Never displayed as a number.
 The run of consecutive epoch days, ending today or yesterday, on which at least
 one entry exists. Backdating an entry into a gap repairs it.
 
+**Best streak**:
+The longest such run inside a stated range, wherever in the range it falls. What a
+recap reports, and a different question from the streak, which always ends at
+today. The two were confused once already: the recap showed the current streak
+capped at 28.
+
 **Milestone**:
 A dated significant day, past or future, kept separately from entries. Whether it
 reads as a countdown or an anniversary follows from its date and today; it is not
