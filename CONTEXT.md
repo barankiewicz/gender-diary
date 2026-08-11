@@ -17,6 +17,14 @@ part of it.
 _Avoid_: Store (the demo store was a different thing), database (the journal is what
 is held, not where)
 
+**Reference data**:
+The part of the journal that is bounded at tens of rows and never paginated: gender
+dimensions, presets, tag groups and tags, milestones, and preferences. Held in
+memory and read synchronously, in contrast to entry data - entries, search, stats,
+tag insights, recap - which is unbounded and read a query at a time. The split
+decides which screens have a loading state.
+_Avoid_: Metadata, lookup data, config
+
 **Entry**:
 One logged moment, carrying a mood, gender dimension values, tags, a note, and
 photos. A day can hold several. Always holds at least one of those five; an entry
