@@ -28,11 +28,16 @@ Second person, present tense, sentence case. Contractions are fine. British
 spelling, so colour and not color.
 
 Short. A label is one to three words, a hint is one sentence, an explanation is two.
-If a third sentence is needed, the screen is probably doing too much.
+If a third sentence is needed, the screen is probably doing too much. The risk
+screens below are the exception: setting a passphrase, resetting the app or
+exporting a plain file needs the whole consequence stated, and three or four
+sentences there beat a short sentence that leaves something out.
 
-Warm, but not chirpy and never congratulatory about tracking itself. "Saved. It
-counts." is the ceiling. A person logging a bad day does not want to be told they are
-doing great.
+Warm, but not chirpy. A person logging a bad day does not want to be told they are
+doing great, so the everyday surfaces stay level: "Saved. It counts." is the ceiling
+for a save, a streak row or a notice. Recap is allowed more warmth, because someone
+opens it deliberately to look back, but even there a gap is never named as a failure.
+"A quiet month. Quiet counts too." is the shape.
 
 Say the thing rather than announcing it. No "please note", no "in order to", no
 "we've made it easy to".
@@ -49,8 +54,9 @@ Say the thing rather than announcing it. No "please note", no "in order to", no
   person's own numbers and the app's job is to draw them.
 - No judgment of either end of a scale. Neither binary nor nonbinary is the better
   end, and no wording may imply one is.
-- No praise or shame attached to streaks and gaps. A missed week is not a failure and
-  the copy does not name it as one.
+- No shame for a gap, anywhere, and no praise for the act of tracking on the
+  everyday surfaces. A missed week is not a failure and the copy never names it as
+  one.
 - No fake reassurance in front of something irreversible, and no drama either. State
   what will be gone, once, then let the button say what it does.
 - No exclamation marks outside a genuine celebration, and at most one there.
@@ -75,6 +81,23 @@ file, and the sheet in front of it says that plainly rather than gently.
 
 **Deletion and replace.** Name what goes, in the same sentence as the fact that it
 cannot be undone.
+
+## What the rules changed
+
+Real pairs from this repo, before on the left of the arrow.
+
+| Before | After | Why |
+| --- | --- | --- |
+| Log how today felt — a mood is enough. | Log how today felt. A mood is enough, and you can add more later. | No dashes. |
+| What should we call you? | What should the app call you? | There is no "we" here. |
+| Custom dimension | Custom scale | Screens say scale. |
+| Start your journey | Start writing | Says what the button does. |
+| local-first · your data never leaves this device | nothing leaves this device | Plain words over a slogan. |
+| Without the password the file is unreadable — including by us. | Without the password the file is unreadable, including to the person who wrote this app. | No dash, no "us", and the claim gets more exact. |
+| Couldn't open the database | Couldn't open your journal | The person has a journal, not a database. |
+| Co się wydarzyło? Jak się z tym czułaś? | Co się wydarzyło? Jak było? | The Polish assigned the reader a gender. |
+| binarna / niebinarna | binarność / niebinarność | Endpoints are nouns, not adjectives agreeing with the reader. |
+| med · Codziennie | Lek · Codziennie | The row printed the stored value. |
 
 ## Words the app uses
 
