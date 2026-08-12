@@ -1,19 +1,15 @@
 # Provisioning
 
-The parts of shipping this app that a person has to do: DNS records, a hosting
-account, a store registration, a signing key. `scripts/provision.sh` walks them
-one at a time, says what each value is for before asking for it, and writes each
-one where it belongs. Read it before running it:
+The parts of shipping this app that a person has to do: a DNS record, deployment
+access, a store registration, a signing key. This file is the record of what
+those steps produce and what reads it, which is the half that the pipeline and
+the later tickets depend on.
 
-```
-DRY_RUN=1 scripts/provision.sh     # performs nothing, describes every step
-scripts/provision.sh               # for real
-```
-
-It is re-runnable and skips what is already done, which is the normal case
-rather than the exception: a Google Play registration has to be verified before
-it can hold an app, so a run that finishes everything in one sitting is
-unlikely.
+The wizard that walks the steps themselves is untracked, because it is specific
+to one operator's machine rather than to this app: it reads the VPS address out
+of an ssh alias, names a deploy user, and keeps its own progress in a state
+directory. Ask whoever holds it, or read the steps below and do them by hand -
+nothing here needs the script to have run, only the values to be in place.
 
 ## Where a captured value goes
 
@@ -73,9 +69,7 @@ password manager before the key exists.
   three names in the table above are the whole seam between them.
 - **Anything to do with the landing site.** It has its own origin, its own
   hosting account and its own deployment credentials, which nothing here can
-  reach (ADR-0019), it is already deployed, and it keeps its own wizard for that
-  work. This script is the app's.
+  reach (ADR-0019). It is already deployed, and it keeps its own setup path.
 - **Submitting to F-Droid** waits for ticket 18: F-Droid rebuilds the published
   source itself, so a request filed before the metadata and the reproducibility
-  result exist gets closed. The last stage checks for them and records nothing
-  until the request is actually filed.
+  result exist gets closed.
