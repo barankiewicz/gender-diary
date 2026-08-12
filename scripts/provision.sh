@@ -219,7 +219,14 @@ fi
 # a wizard holding its own copy is a wizard that can walk you through setting up
 # an origin the app does not live on - and the Journal's origin is the one value
 # that cannot be moved once somebody has stored a Journal on it.
-adr_value() { sed -n "s/^- $1: \`\([^\`]*\)\`.*$/\1/p" "$ADR" | head -n1; }
+# One awk rather than sed piped into head: under `set -e` with pipefail, head
+# closing the pipe after the first line can leave sed killed by SIGPIPE, and an
+# assignment from a failed substitution takes the whole script down.
+adr_value() {
+  awk -v key="- $1: " 'index($0, key) == 1 {
+    line = $0; sub(/^[^`]*`/, "", line); sub(/`.*$/, "", line); print line; exit
+  }' "$ADR"
+}
 JOURNAL_ORIGIN=$(adr_value "Journal")
 LANDING_ORIGIN=$(adr_value "Landing site")
 ANDROID_APP_ID=$(adr_value "Android application ID")
@@ -233,7 +240,7 @@ done
 
 # And the environment name from the workflow that reads the secrets, so filling
 # a differently named environment cannot look like success.
-RELEASE_ENV=$(sed -n 's/^ *environment: *\([A-Za-z0-9_-]*\) *$/\1/p' "$RELEASE_WORKFLOW" | head -n1)
+RELEASE_ENV=$(awk '$1 == "environment:" { print $2; exit }' "$RELEASE_WORKFLOW")
 [[ -n "$RELEASE_ENV" ]] || {
   printf 'Could not read the environment name out of %s.\n' "$RELEASE_WORKFLOW" >&2
   exit 1
@@ -358,15 +365,28 @@ set_env_var() {
 # skip a stage on evidence rather than on a note it left itself. A dry run
 # answers no to all of them, so it walks the whole procedure.
 
+resolved_address() {
+  if command -v dig >/dev/null 2>&1; then
+    dig +short "$1" | tail -n1
+  else
+    getent hosts "$1" | awk '{print $1}' | tail -n1
+  fi
+}
+
 resolves_to() {
   if (( DRY_RUN )); then note "would check that $1 resolves to $2"; return 1; fi
   local answer
-  if command -v dig >/dev/null 2>&1; then
-    answer=$(dig +short "$1" | tail -n1)
-  else
-    answer=$(getent hosts "$1" | awk '{print $1}' | tail -n1)
-  fi
+  answer=$(resolved_address "$1")
   [[ -n "$answer" && "$answer" == "$2" ]]
+}
+
+# Resolving at all, for the origin whose address this repository has no business
+# knowing: the landing site's target is in the hosting panel, and the wizard is
+# told not to assume it. So this can say a record exists and cannot say it is
+# the right one.
+resolves() {
+  if (( DRY_RUN )); then note "would check that $1 resolves"; return 1; fi
+  [[ -n "$(resolved_address "$1")" ]]
 }
 
 release_env_exists() {
@@ -375,26 +395,41 @@ release_env_exists() {
   gh api "repos/$REPO/environments/$RELEASE_ENV" >/dev/null 2>&1
 }
 
+# names_include LIST NAME - one awk, and no `grep -q` closing the pipe early.
+# Under pipefail, grep -q exiting on the first match can leave the producer
+# killed by SIGPIPE, and the check then reports "not set" for something that is.
+names_include() {
+  awk -v want="$2" '$1 == want { found = 1 } END { exit !found }' <<< "$1"
+}
+
 # gh lists secret names and never values, which is all a re-run needs to know.
 env_secret_set() {
   if (( DRY_RUN )); then note "would check whether $1 is already set"; return 1; fi
   command -v gh >/dev/null 2>&1 || return 1
-  gh secret list --repo "$REPO" --env "$RELEASE_ENV" 2>/dev/null |
-    awk '{print $1}' | grep -qx "$1"
+  local listed
+  listed=$(gh secret list --repo "$REPO" --env "$RELEASE_ENV" 2>/dev/null) || return 1
+  names_include "$listed" "$1"
 }
 
+# Both halves, because the credentials alone are not evidence of the record: an
+# account with its FTP secrets set and no A record would skip this stage forever
+# while the site answered with nothing.
 landing_deploy_ready() {
-  if (( DRY_RUN )); then note "would check the landing repository's deploy credentials"; return 1; fi
+  if (( DRY_RUN )); then note "would check the landing site's record and credentials"; return 1; fi
   command -v gh >/dev/null 2>&1 || return 1
-  gh secret list --repo "$LANDING_REPO" 2>/dev/null | awk '{print $1}' | grep -qx FTP_PASSWORD &&
-    gh variable list --repo "$LANDING_REPO" 2>/dev/null | awk '{print $1}' | grep -qx FTP_SERVER_DIR
+  resolves "$LANDING_ORIGIN" || return 1
+  local secrets variables
+  secrets=$(gh secret list --repo "$LANDING_REPO" 2>/dev/null) || return 1
+  variables=$(gh variable list --repo "$LANDING_REPO" 2>/dev/null) || return 1
+  names_include "$secrets" FTP_PASSWORD && names_include "$variables" FTP_SERVER_DIR
 }
 
 # The VPS address comes from the ssh alias rather than from a copy of the IP, so
 # nothing here drifts if the box moves.
 vps_field() {
-  local value
-  value=$(ssh -G "$VPS_ALIAS" 2>/dev/null | awk -v k="$1" '$1 == k {print $2}' | head -n1) || true
+  local config value
+  config=$(ssh -G "$VPS_ALIAS" 2>/dev/null) || return 1
+  value=$(awk -v k="$1" '$1 == k { print $2; exit }' <<< "$config")
   [[ "$value" == "$VPS_ALIAS" ]] && return 1   # no such alias; ssh echoes the name back
   [[ -n "$value" ]] && printf '%s' "$value"
 }
@@ -563,7 +598,7 @@ if is_done DNS_AND_HOSTING_LANDING; then
     "recorded $(_existing DNS_AND_HOSTING_LANDING)"
 elif landing_deploy_ready; then
   skip_stage "The landing site's origin and its deploy" \
-    "$LANDING_REPO already holds its FTP credentials"
+    "$LANDING_ORIGIN resolves and $LANDING_REPO holds its FTP credentials"
 else
   stage "The landing site's origin and its deploy"
   say "The site lives at $LANDING_ORIGIN, on shared hosting, in its own"
@@ -588,13 +623,16 @@ else
         warn "it exited non-zero; finish it in that checkout before ticking anything"
       fi
     fi
+    if landing_deploy_ready || confirm "Record the landing side as done?"; then
+      mark_done DNS_AND_HOSTING_LANDING
+    else
+      SKIPPED+=("the landing site: run scripts/lhpl-setup.sh in $LANDING_REPO")
+    fi
   else
-    warn "No landing checkout to run it from."
+    warn "No landing checkout to run it from, so there is nothing to record."
     step "Clone $LANDING_REPO, then run scripts/lhpl-setup.sh inside it."
-  fi
-  if landing_deploy_ready || confirm "Record the landing side as done?"; then
-    mark_done DNS_AND_HOSTING_LANDING
-  else
+    note "Nothing is written down here on purpose. Offering to tick a step that"
+    note "cannot have been taken yet is how a stage gets skipped forever."
     SKIPPED+=("the landing site: run scripts/lhpl-setup.sh in $LANDING_REPO")
   fi
 fi
@@ -623,7 +661,11 @@ else
     say "Host and port come from the $VPS_ALIAS alias: $VPS_HOST on $VPS_PORT."
   else
     ask VPS_HOST "The VPS public IP:"
-    ask VPS_PORT "Its ssh port:"
+    ask VPS_PORT "Its ssh port [22]:"
+    # Ticket 05's deploy reads the port as a secret, and an empty one there is a
+    # deploy that cannot connect. The box does not answer on 22, so this default
+    # is a fallback rather than an answer.
+    VPS_PORT="${VPS_PORT:-22}"
   fi
   say ""
   say "One system user per site on that box, so a compromise of one app cannot"
@@ -675,9 +717,14 @@ else
   note "The private half stays at $CI_KEY, mode 600, outside the repository."
   note "Once a deploy has worked you can delete it: GitHub keeps the only copy"
   note "CI needs, and a lost key is one ssh-keygen and one authorized_keys line."
-  if env_secret_set VPS_DEPLOY_KEY || confirm "Record the VPS access as done?"; then
+  # Recorded only when the three things ticket 05 needs actually exist. A stage
+  # marked done on the strength of one of four values is a stage that never runs
+  # again and a deploy that cannot connect.
+  if [[ -f "$CI_KEY" && -n "$VPS_HOST" && -n "$VPS_USER" ]] &&
+    { env_secret_set VPS_DEPLOY_KEY || confirm "Record the VPS access as done?"; }; then
     mark_done VPS_DEPLOY_ACCESS
   else
+    warn "Not recording this stage, so the next run comes back to it."
     SKIPPED+=("deploy access to the VPS for $VPS_USER")
   fi
 fi
@@ -731,28 +778,28 @@ else
   say "the console's own link rather than a path written down here."
   open_url "https://console.cloud.google.com/iam-admin/serviceaccounts"
   step "Create a service account, then add a key of type JSON and download it."
-  open_url "https://play.google.com/console/developers/api-access"
-  step "Link that service account, and grant it release access to the app."
+  open_url "https://play.google.com/console/"
+  step "In the Play Console, find the API access section for this app and link"
+  say "    that service account, then grant it release access. The section has"
+  say "    moved between menus more than once, so navigate rather than guess."
   say ""
-  say "The file goes straight into the environment. It is never copied into the"
-  say "repository, and it is worth deleting from your downloads afterwards: it"
-  say "is a key that can publish to your store listing."
+  say "The file goes straight into the environment and is never copied into the"
+  say "repository."
   ask PLAY_KEY_PATH "Path to the downloaded JSON (blank to skip):"
+  PLAY_KEY_FILE="${PLAY_KEY_PATH/#\~/$HOME}"
   PLAY_KEY_JSON=""
-  if [[ -n "$PLAY_KEY_PATH" && -f "${PLAY_KEY_PATH/#\~/$HOME}" ]]; then
-    PLAY_KEY_JSON=$(cat "${PLAY_KEY_PATH/#\~/$HOME}")
+  if [[ -n "$PLAY_KEY_PATH" && -f "$PLAY_KEY_FILE" ]]; then
+    PLAY_KEY_JSON=$(cat "$PLAY_KEY_FILE")
   elif (( DRY_RUN )); then
     PLAY_KEY_JSON="dry-run-secret-PLAY_SERVICE_ACCOUNT_JSON"
   elif [[ -n "$PLAY_KEY_PATH" ]]; then
     warn "No file at $PLAY_KEY_PATH"
   fi
   set_env_secret PLAY_SERVICE_ACCOUNT_JSON "$PLAY_KEY_JSON"
-  if [[ -f "${PLAY_KEY_PATH/#\~/$HOME}" ]] && confirm "Shred the downloaded copy now?"; then
-    if command -v shred >/dev/null 2>&1; then
-      run shred -u "${PLAY_KEY_PATH/#\~/$HOME}"
-    else
-      run rm -f "${PLAY_KEY_PATH/#\~/$HOME}"
-    fi
+  if [[ -f "$PLAY_KEY_FILE" ]]; then
+    say ""
+    warn "Delete the downloaded copy when you are done with it. It is a key that"
+    warn "can publish to your store listing, and it is sitting in your downloads."
   fi
   if env_secret_set PLAY_SERVICE_ACCOUNT_JSON || confirm "Record the Play credential as done?"; then
     mark_done PLAY_DELIVERY
@@ -765,11 +812,17 @@ fi
 if is_done ANDROID_UPLOAD_KEY; then
   skip_stage "The Android signing key, and where it lives" \
     "recorded $(_existing ANDROID_UPLOAD_KEY)"
+elif env_secret_set ANDROID_KEYSTORE_BASE64; then
+  # On evidence, and this is the stage where that matters most. The advice below
+  # is to back the keystore up offline; someone who does that and moves the local
+  # file would otherwise land in the generate branch on the next run and mint a
+  # second key, which is a second app.
+  skip_stage "The Android signing key, and where it lives" \
+    "ANDROID_KEYSTORE_BASE64 is already in the $RELEASE_ENV environment"
 else
   stage "The Android signing key, and where it lives"
-  say "One key signs every release build of $ANDROID_APP_ID. Read what that"
-  say "means before generating it, because two of the consequences are"
-  say "permanent:"
+  say "One key signs every release build of $ANDROID_APP_ID, and two of the"
+  say "consequences are permanent:"
   say ""
   step "For the APK channels - the release APK on GitHub, which Obtainium"
   say "    follows, and F-Droid - this key is the app's identity. An installed"
@@ -778,11 +831,7 @@ else
   step "For Play, this is the upload key. That one Google can reset, at the"
   say "    cost of a support round trip."
   say ""
-  warn "So: back the keystore file up somewhere offline, and keep the password"
-  warn "in your password manager. GitHub secrets are write-only. Neither this"
-  warn "wizard nor GitHub can ever show you the password again."
-  say ""
-  say "Where things go. The keystore is a file at:"
+  say "The keystore is a file at:"
   note "  $KEYSTORE"
   say "and, base64-encoded, a secret in the $RELEASE_ENV environment, because"
   say "that is the only job allowed to sign. Ticket 18 reads it from there."
@@ -791,14 +840,9 @@ else
   KEYSTORE_ALIAS="upload"
   KEYSTORE_PASSWORD=""
   if [[ -f "$KEYSTORE" ]]; then
-    say "A keystore is already at that path. It is never regenerated: a second"
-    say "key is a second app, so this only confirms the password and re-sets the"
-    say "secrets."
+    say "A keystore is already at that path, so this confirms the password and"
+    say "re-sets the secrets. It is never regenerated."
     say ""
-    if (( DRY_RUN == 0 )) && command -v secret-tool >/dev/null 2>&1; then
-      KEYSTORE_PASSWORD=$(secret-tool lookup service gender-diary keystore "$KEYSTORE" || true)
-      if [[ -n "$KEYSTORE_PASSWORD" ]]; then say "Password found in your wallet."; fi
-    fi
     attempt=0
     while [[ -z "$KEYSTORE_PASSWORD" ]] && (( attempt < 3 )); do
       attempt=$((attempt + 1))
@@ -812,73 +856,99 @@ else
       KEYSTORE_PASSWORD=""
     done
   else
-    say "The password is asked for rather than generated, so that the copy you"
-    say "can recover from exists before the key does. Put one in your password"
-    say "manager now, then paste it here."
+    warn "There is no keystore at that path, so this stage would make one. If you"
+    warn "already have the key for this app somewhere else, stop here and put it"
+    warn "back at that path instead. A second key publishes a second app."
     say ""
-    attempt=0
-    until (( attempt >= 3 )); do
-      attempt=$((attempt + 1))
-      ask_secret KEYSTORE_PASSWORD "Password for the new keystore:"
-      ask_secret KEYSTORE_PASSWORD_AGAIN "The same again:"
-      if (( DRY_RUN )); then break; fi
-      if [[ ${#KEYSTORE_PASSWORD} -lt 12 ]]; then
-        warn "Twelve characters or more, please. This one signs releases for years."
-      elif [[ "$KEYSTORE_PASSWORD" != "$KEYSTORE_PASSWORD_AGAIN" ]]; then
-        warn "The two do not match."
-      else
-        break
-      fi
+    if ! confirm "Generate a new signing key for $ANDROID_APP_ID?"; then
+      warn "Left alone."
       KEYSTORE_PASSWORD=""
-    done
-    if [[ -n "$KEYSTORE_PASSWORD" ]]; then
-      # PKCS12 keeps one password for the store and the key, which is one fewer
-      # value to lose. -storepass:env keeps it out of the process list, where a
-      # command line would have put it for anyone on the machine to read.
-      KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD" run keytool -genkeypair \
-        -keystore "$KEYSTORE" -storetype PKCS12 \
-        -storepass:env KEYSTORE_PASSWORD \
-        -alias "$KEYSTORE_ALIAS" -keyalg RSA -keysize 4096 -validity 10950 \
-        -dname "CN=Gender Diary, OU=Gender Diary, O=Gender Diary, C=PL"
-      run chmod 600 "$KEYSTORE"
     else
-      warn "No password, so no key. Re-run this stage when you have one ready."
+      say ""
+      say "The password is asked for rather than generated, so the copy you can"
+      say "recover from exists before the key does. GitHub secrets are"
+      say "write-only: neither this wizard nor GitHub can show it to you again."
+      say "Put one in your password manager now, then paste it here."
+      say ""
+      attempt=0
+      until (( attempt >= 3 )); do
+        attempt=$((attempt + 1))
+        ask_secret KEYSTORE_PASSWORD "Password for the new keystore:"
+        ask_secret KEYSTORE_PASSWORD_AGAIN "The same again:"
+        if (( DRY_RUN )); then break; fi
+        if [[ ${#KEYSTORE_PASSWORD} -lt 12 ]]; then
+          warn "Twelve characters or more, please. This one signs releases for years."
+        elif [[ "$KEYSTORE_PASSWORD" != "$KEYSTORE_PASSWORD_AGAIN" ]]; then
+          warn "The two do not match."
+        else
+          break
+        fi
+        KEYSTORE_PASSWORD=""
+      done
+      if [[ -n "$KEYSTORE_PASSWORD" ]]; then
+        # PKCS12 keeps one password for the store and the key, which is one fewer
+        # value to lose. -storepass:env keeps it out of the argument list, where a
+        # command line would have put it for anyone on the machine to read.
+        # The export sits in a subshell rather than as an assignment prefixed to
+        # a helper function: whether such an assignment survives the call is
+        # bash-version-dependent, and this way the password's reach does not
+        # depend on which bash is running the wizard.
+        if (( DRY_RUN )); then
+          note "would run keytool -genkeypair into $KEYSTORE"
+        else
+          (
+            export KEYSTORE_PASSWORD
+            keytool -genkeypair -keystore "$KEYSTORE" -storetype PKCS12 \
+              -storepass:env KEYSTORE_PASSWORD \
+              -alias "$KEYSTORE_ALIAS" -keyalg RSA -keysize 4096 -validity 10950 \
+              -dname "CN=Gender Diary, OU=Gender Diary, O=Gender Diary, C=PL"
+          )
+          chmod 600 "$KEYSTORE"
+        fi
+      else
+        warn "No password, so no key. Re-run this stage when you have one ready."
+      fi
     fi
   fi
-  if [[ -n "${KEYSTORE_PASSWORD:-}" ]] && command -v secret-tool >/dev/null 2>&1 &&
-    confirm "Also keep the password in your wallet, so a re-run need not ask?"; then
-    if (( DRY_RUN )); then
-      note "would store the keystore password in the wallet"
-    else
-      printf '%s' "$KEYSTORE_PASSWORD" | secret-tool store \
-        --label="Gender Diary Android upload keystore" \
-        service gender-diary keystore "$KEYSTORE" || warn "the wallet refused it"
-    fi
-  fi
-  if [[ -f "$KEYSTORE" ]] && (( DRY_RUN == 0 )); then
+  if [[ -f "$KEYSTORE" && -n "$KEYSTORE_PASSWORD" ]] && (( DRY_RUN == 0 )); then
     say ""
     say "The certificate this key presents, which Play shows too and which is"
     say "how you check that the right key signed a build:"
-    KEYSTORE_PASSWORD="${KEYSTORE_PASSWORD:-}" keytool -list -v -keystore "$KEYSTORE" \
+    # awk reads to the end rather than exiting on the match: closing the pipe
+    # early would leave keytool killed by SIGPIPE, which pipefail then reports.
+    KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD" keytool -list -v -keystore "$KEYSTORE" \
       -storetype PKCS12 -storepass:env KEYSTORE_PASSWORD 2>/dev/null |
-      grep -i 'SHA256:' | head -n1 || true
+      awk '/SHA256:/ && !seen { print; seen = 1 }' || true
   fi
   say ""
-  if [[ -f "$KEYSTORE" ]]; then
-    set_env_secret ANDROID_KEYSTORE_BASE64 "$(base64 -w0 < "$KEYSTORE")"
+  # Both, or neither. A keystore in the environment without the password that
+  # opens it is a signing job that fails at the far end of a release, long after
+  # this stage was ticked.
+  if [[ -f "$KEYSTORE" && -n "$KEYSTORE_PASSWORD" ]]; then
+    set_env_secret ANDROID_KEYSTORE_BASE64 "$(base64 < "$KEYSTORE" | tr -d '\n')"
+    set_env_secret ANDROID_KEYSTORE_PASSWORD "$KEYSTORE_PASSWORD"
+    set_env_var ANDROID_KEY_ALIAS "$KEYSTORE_ALIAS"
+    unset KEYSTORE_PASSWORD KEYSTORE_PASSWORD_AGAIN
+    say ""
+    warn "Back that keystore file up somewhere offline now, and check the password"
+    warn "is in your password manager. This is the moment to do it."
+    say ""
+    note "Ticket 18 decodes the keystore into the runner, signs with it inside the"
+    note "$RELEASE_ENV environment, and never writes it anywhere a job artifact or"
+    note "a log can reach. docs/provisioning.md names all three values."
+    if env_secret_set ANDROID_KEYSTORE_BASE64 || confirm "Record the signing key as done?"; then
+      mark_done ANDROID_UPLOAD_KEY
+    else
+      SKIPPED+=("the Android upload key and its secrets")
+    fi
   elif (( DRY_RUN )); then
     set_env_secret ANDROID_KEYSTORE_BASE64 "dry-run-secret-ANDROID_KEYSTORE_BASE64"
-  fi
-  set_env_secret ANDROID_KEYSTORE_PASSWORD "${KEYSTORE_PASSWORD:-}"
-  set_env_var ANDROID_KEY_ALIAS "$KEYSTORE_ALIAS"
-  unset KEYSTORE_PASSWORD KEYSTORE_PASSWORD_AGAIN
-  say ""
-  note "Ticket 18 decodes the keystore into the runner, signs with it inside the"
-  note "$RELEASE_ENV environment, and never writes it anywhere a job artifact or"
-  note "a log can reach. docs/provisioning.md names all three values."
-  if env_secret_set ANDROID_KEYSTORE_BASE64 || confirm "Record the signing key as done?"; then
+    set_env_secret ANDROID_KEYSTORE_PASSWORD "dry-run-secret-ANDROID_KEYSTORE_PASSWORD"
+    set_env_var ANDROID_KEY_ALIAS "$KEYSTORE_ALIAS"
     mark_done ANDROID_UPLOAD_KEY
   else
+    unset KEYSTORE_PASSWORD KEYSTORE_PASSWORD_AGAIN
+    warn "Nothing recorded, so the next run comes back to this."
     SKIPPED+=("the Android upload key and its secrets")
   fi
 fi

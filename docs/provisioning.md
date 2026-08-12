@@ -46,9 +46,10 @@ be in a repository:
 - `upload-keystore.p12` - the Android signing key, mode 600.
 - `vps-ci-deploy-key` - the private half of the CI deploy key, mode 600.
 
-The keystore password is not stored anywhere the wizard can read it back, beyond
-an offer to keep it in the desktop wallet. GitHub secrets are write-only, so
-your own password manager is the copy that matters.
+The keystore password is not stored anywhere the wizard can read it back. GitHub
+secrets are write-only, so your own password manager is the only copy, and the
+wizard asks you for the password rather than generating one so that copy exists
+before the key does.
 
 ## The signing key, and what depends on not losing it
 
