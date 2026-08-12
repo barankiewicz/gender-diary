@@ -172,16 +172,23 @@ choice, and cannot be deleted.
 
 **Data key**:
 The random key the journal's contents are encrypted under. Never derived from an
-access secret: the journal passphrase wraps it on the web and Android Keystore wraps
-it on Android. Changing an access secret rewraps the key rather than re-encrypting
-the journal.
+access secret: the journal passphrase can wrap it as a portable secret, and a
+device-bound mode can wrap it with storage tied to one browser profile or device.
+Changing the access mode rewraps the key rather than re-encrypting the journal.
 _Avoid_: Master key, database key (it covers photos and side files too)
 
 **Journal passphrase**:
-The secret that unlocks the encrypted journal on the web after the previous
-session has ended. Gender Diary cannot recover it; it is distinct from both the
-app-lock PIN and an archive password.
+The portable secret that unlocks the encrypted journal after the previous
+session has ended, on any installation using passphrase mode. Gender Diary cannot
+recover it; it is distinct from both the app-lock PIN and an archive password.
 _Avoid_: Master password, account password, PIN
+
+**Device-bound mode**:
+The local-only unlock mode with no typed journal passphrase on a cold start. The
+key material stays tied to one browser profile or one device, so losing that
+profile, that device or the local key can make that local journal copy
+unrecoverable.
+_Avoid_: Passwordless account, recovery mode, sync
 
 **App lock**:
 The PIN or biometric gate that limits casual access through the app. It can provide

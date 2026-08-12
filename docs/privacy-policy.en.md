@@ -31,6 +31,11 @@ updated, for example:
 The host does not receive accounts, profile identifiers or journal uploads.
 Journal content is stored in browser storage on the device.
 
+On the device itself, the local journal can unlock in one of two ways: with a
+journal passphrase you type after the session ends, or with a device-bound key
+kept only in that browser profile. Without a passphrase, losing the browser
+profile or its local key can make that local journal copy unreadable.
+
 ## Android store delivery
 
 Android builds are distributed through channels that have their own telemetry
@@ -39,6 +44,10 @@ under their own terms.
 
 Inside the app, journal content stays on the device. It is not sent to a project
 server as part of normal use.
+
+The local Android journal can also use one of two unlock modes: a journal
+passphrase, or a key kept on that device alone. Without a passphrase, losing the
+device or its local key can make that local journal copy unreadable.
 
 ## Backup files, and wherever you put them
 
@@ -59,8 +68,8 @@ export, and this policy says so too.
 
 - Not that a hosted app makes no network requests. It has to fetch itself.
 - Not that distribution channels collect nothing.
-- Not that a forgotten journal passphrase or backup password can be recovered.
-  Neither can.
+- Not that a forgotten journal passphrase, a lost device-bound key or a backup
+  password can be recovered. None of them can.
 
 ## Support and security boundaries
 

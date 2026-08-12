@@ -31,6 +31,11 @@ aktualizacji to samo, co widzi każdy serwer WWW:
 Nie dostaje za to kont, identyfikatorów profilu ani wpisów z dziennika. Treść
 dziennika zostaje w pamięci przeglądarki, na urządzeniu.
 
+Na samym urządzeniu dziennik może otwierać się na dwa sposoby: hasłem do
+dziennika wpisywanym po zakończeniu sesji albo lokalnym kluczem trzymanym tylko
+w tym profilu przeglądarki. Bez hasła utrata profilu albo tego klucza może
+sprawić, że tego egzemplarza dziennika nie da się już odczytać.
+
 ## Wydania na Androida
 
 Wydania na Androida rozchodzą się przez sklepy i katalogi, które mają własną
@@ -39,6 +44,10 @@ i aktualizację, na zasadach ze swojego regulaminu, nie z tego dokumentu.
 
 W samej aplikacji dane zostają na urządzeniu. Przy zwykłym używaniu treść
 dziennika nie idzie na żaden serwer projektu.
+
+Na Androidzie lokalny dziennik też może działać w dwóch trybach: z hasłem do
+dziennika albo z kluczem trzymanym tylko na tym urządzeniu. Bez hasła utrata
+urządzenia albo lokalnego klucza może zamknąć ten egzemplarz dziennika na stałe.
 
 ## Kopia zapasowa i miejsce, w którym leży
 
@@ -60,8 +69,8 @@ i ten dokument mówi to samo.
 - Że aplikacja webowa nie wykonuje żadnych zapytań sieciowych. Wykonuje, bo
   inaczej nie dałoby się jej pobrać ani zaktualizować.
 - Że kanały dystrybucji niczego nie zbierają.
-- Że da się odzyskać zapomniane hasło do dziennika albo hasło do kopii. Nie da
-  się.
+- Że da się odzyskać zapomniane hasło do dziennika, utracony klucz lokalny albo
+  hasło do kopii. Nie da się.
 
 ## Wsparcie i zgłoszenia bezpieczeństwa
 

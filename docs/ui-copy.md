@@ -75,6 +75,11 @@ after. Wrong attempts throttle. Nothing auto-wipes.
 say so (ADR-0018). It cannot be recovered, there is no account behind it, and the
 setup screen recommends a password manager in the same breath.
 
+**Device-bound mode.** This one is honest about the trade: no typed journal
+passphrase on a cold start, but the journal copy is tied harder to one browser
+profile or one device. The copy names that lock-in before the person chooses it,
+and says plainly that losing the local key is unrecoverable.
+
 **Archives.** An encrypted archive is unreadable without its password, including to
 whoever wrote the app. A plain CSV or JSON export is readable by anyone who gets the
 file, and the sheet in front of it says that plainly rather than gently.
@@ -111,7 +116,7 @@ Screens use the words the person sees elsewhere in the app, not the internal one
 | milestone | event, occasion |
 | journal | database, journal handle |
 | backup, archive file | dump, snapshot |
-| passphrase (the journal), PIN (the app lock) | password, code, passcode |
+| passphrase (the journal), device-bound mode, PIN (the app lock) | password, code, passcode |
 | photo | image, asset |
 
 "Notes" is left in English in both catalogues. It is the disguise title the app
