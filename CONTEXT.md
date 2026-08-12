@@ -189,6 +189,20 @@ shorter access during an unlocked session, but it is not the journal passphrase 
 does not provide data-preserving recovery.
 _Avoid_: Database password, encryption password
 
+**Conversion**:
+Turning a journal written before encryption existed into an encrypted one, on the
+device that holds it. A one-time move of a whole journal, not a schema migration and
+not an import: it carries every setting the archive format deliberately leaves
+behind. It can be interrupted and resumed, and it never destroys the plaintext
+journal until the encrypted one has been reopened and verified.
+_Avoid_: Migration (that is a schema change), upgrade, import
+
+**Conversion marker**:
+The small file recording how far a conversion has got, so a boot after an
+interruption knows which of the two journals on the device is the real one. Its
+existence is what makes an unfinished conversion tellable from a finished one.
+_Avoid_: Lock file, flag, checkpoint
+
 ### Getting data out
 
 **Archive**:
