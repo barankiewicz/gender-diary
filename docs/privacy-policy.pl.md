@@ -2,14 +2,15 @@
 
 Ostatnia aktualizacja: 12 sierpnia 2026
 
-Tak działa Gender Diary w wersji, która jest teraz dostępna. Nie ma tu planów na
-przyszłość, tylko to, co aplikacja robi dzisiaj.
+Tak działa Gender Diary w wydanej wersji. Każde miejsce jest tu opisane od dnia,
+w którym rusza, i ani chwili wcześniej.
 
 ## Czego to dotyczy
 
 Gender Diary działa w kilku miejscach naraz i każde z nich widzi co innego:
 
-- aplikacja webowa pod adresem `app.genderdiary.barankiewicz.dev`,
+- aplikacja webowa pod adresem `app.genderdiary.barankiewicz.dev`, kiedy
+  hosting ruszy,
 - kanały dystrybucji wydań na Androida (Google Play, F-Droid, APK do pobrania),
   kiedy te wydania się pojawią,
 - miejsce, w którym ląduje kopia zapasowa, jeśli zdecydujesz się ją zrobić.
@@ -27,8 +28,8 @@ aktualizacji to samo, co widzi każdy serwer WWW:
 - ścieżki i rozmiary pobranych plików,
 - nagłówki User-Agent i Referer wysłane przez przeglądarkę.
 
-Nie ma tam kont ani identyfikatorów profilu, a wpisy z dziennika nie są nigdzie
-wysyłane. Treść dziennika zostaje w pamięci przeglądarki, na urządzeniu.
+Nie dostaje za to kont, identyfikatorów profilu ani wpisów z dziennika. Treść
+dziennika zostaje w pamięci przeglądarki, na urządzeniu.
 
 ## Wydania na Androida
 
@@ -41,13 +42,18 @@ dziennika nie idzie na żaden serwer projektu.
 
 ## Kopia zapasowa i miejsce, w którym leży
 
-Przy eksporcie kopia jest szyfrowana, a miejsce zapisu wybierasz ty.
+Przy eksporcie miejsce zapisu wybierasz ty.
 
 Jeśli plik trafi na dysk w chmurze albo do dostawcy dokumentów, ten dostawca
 zobaczy metadane pliku: nazwę, rozmiar, datę zapisu i wpisy w logach dostępu do
 konta.
 
-Bez hasła do tej kopii nikt nie odczyta jej zawartości. Gender Diary też nie.
+Zaszyfrowanej kopii nie da się otworzyć bez jej hasła. Nikt tego nie odczyta,
+Gender Diary też nie, a zgubionego hasła nikt nie odzyska.
+
+Zwykły eksport do CSV albo JSON to co innego: nie jest szyfrowany i każdy, kto
+dostanie ten plik, przeczyta cały dziennik. Aplikacja mówi to przy eksporcie
+i ten dokument mówi to samo.
 
 ## Czego ten projekt nie obiecuje
 
