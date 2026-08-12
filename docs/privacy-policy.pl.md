@@ -1,66 +1,66 @@
-# Polityka prywatnosci
+# Polityka prywatności
 
-Ostatnia aktualizacja: 2026-08-12
+Ostatnia aktualizacja: 12 sierpnia 2026
 
-Ten dokument opisuje, jak dziala Gender Diary w obecnej wersji.
+Tak działa Gender Diary w wersji, która jest teraz dostępna. Nie ma tu planów na
+przyszłość, tylko to, co aplikacja robi dzisiaj.
 
-## Zakres
+## Czego to dotyczy
 
-Gender Diary dziala w kilku miejscach, a kazde z nich ma inny profil
-obserwacji:
+Gender Diary działa w kilku miejscach naraz i każde z nich widzi co innego:
 
-- hostowana aplikacja webowa pod adresem `app.genderdiary.barankiewicz.dev`,
-- kanaly dystrybucji wydan Androida (Google Play, F-Droid, bezposredni APK),
-  gdy wydania Android zostana opublikowane,
-- opcjonalne miejsca zapisu archiwum wybrane przez osobe uzywajaca aplikacji.
+- aplikacja webowa pod adresem `app.genderdiary.barankiewicz.dev`,
+- kanały dystrybucji wydań na Androida (Google Play, F-Droid, APK do pobrania),
+  kiedy te wydania się pojawią,
+- miejsce, w którym ląduje kopia zapasowa, jeśli zdecydujesz się ją zrobić.
 
-Jedno haslo nie opisze bezpiecznie tych trzech sytuacji, dlatego polityka
-oddziela je od siebie.
+Jedno zdanie o wszystkich trzech naraz byłoby nieprawdziwe przynajmniej w jednym
+z nich, więc każde jest opisane osobno.
 
-## Hostowana aplikacja webowa
+## Aplikacja webowa
 
-Host widzi zwykle metadane serwera WWW podczas ladowania lub aktualizacji
-aplikacji, na przyklad:
+Serwer, który wysyła aplikację do przeglądarki, widzi przy pobraniu i przy
+aktualizacji to samo, co widzi każdy serwer WWW:
 
 - adres IP,
-- czas zapytania,
-- sciezki i rozmiary pobieranych plikow,
-- naglowki User-Agent i Referrer wyslane przez przegladarke.
+- godzinę zapytania,
+- ścieżki i rozmiary pobranych plików,
+- nagłówki User-Agent i Referer wysłane przez przeglądarkę.
 
-Host nie dostaje kont, identyfikatorow profilu ani przesylanych wpisow z
-dziennika. Tresc dziennika jest zapisywana lokalnie w pamieci przegladarki na
-urzadzeniu.
+Nie ma tam kont ani identyfikatorów profilu, a wpisy z dziennika nie są nigdzie
+wysyłane. Treść dziennika zostaje w pamięci przeglądarki, na urządzeniu.
 
-## Dystrybucja w sklepach Android
+## Wydania na Androida
 
-Wydania Android sa dostarczane przez kanaly, ktore maja wlasne zasady telemetry
-i kont. Operatorzy sklepow moga widziec zdarzenia instalacji i aktualizacji na
-warunkach swoich regulaminow.
+Wydania na Androida rozchodzą się przez sklepy i katalogi, które mają własną
+telemetrię i własne konta. Operator takiego kanału może zobaczyć instalację
+i aktualizację, na zasadach ze swojego regulaminu, nie z tego dokumentu.
 
-W samej aplikacji dane pozostaja lokalne. Tresc dziennika nie jest wysylana na
-serwer projektu podczas zwyklego uzywania.
+W samej aplikacji dane zostają na urządzeniu. Przy zwykłym używaniu treść
+dziennika nie idzie na żaden serwer projektu.
 
-## Opcjonalne miejsca zapisu archiwum
+## Kopia zapasowa i miejsce, w którym leży
 
-Przy eksporcie zaszyfrowanego Archiwum miejsce zapisu wybierane jest lokalnie.
+Przy eksporcie kopia jest szyfrowana, a miejsce zapisu wybierasz ty.
 
-Jesli plik trafi do dostawcy dokumentow lub chmury, ten dostawca moze zobaczyc
-metadane pliku, na przyklad nazwe, czas zapisu, rozmiar i logi dostepu do
+Jeśli plik trafi na dysk w chmurze albo do dostawcy dokumentów, ten dostawca
+zobaczy metadane pliku: nazwę, rozmiar, datę zapisu i wpisy w logach dostępu do
 konta.
 
-Bez hasla do Archiwum zawartosc pliku pozostaje nieczytelna.
+Bez hasła do tej kopii nikt nie odczyta jej zawartości. Gender Diary też nie.
 
 ## Czego ten projekt nie obiecuje
 
-- Nie ma twierdzenia, ze hostowana aplikacja nie wykonuje zadnych polaczen
-  sieciowych.
-- Nie ma twierdzenia, ze kanaly dystrybucji nie zbieraja zadnych danych.
-- Nie ma odzyskiwania zapomnianego hasla dziennika ani hasla Archiwum.
+- Że aplikacja webowa nie wykonuje żadnych zapytań sieciowych. Wykonuje, bo
+  inaczej nie dałoby się jej pobrać ani zaktualizować.
+- Że kanały dystrybucji niczego nie zbierają.
+- Że da się odzyskać zapomniane hasło do dziennika albo hasło do kopii. Nie da
+  się.
 
-## Granice wsparcia i zgloszen bezpieczenstwa
+## Wsparcie i zgłoszenia bezpieczeństwa
 
-Wsparcie i triage bezpieczenstwa nie wymagaja przekazywania prywatnej tresci
-dziennika.
+Ani pomoc w problemie, ani zgłoszenie błędu bezpieczeństwa nie wymaga pokazywania
+komukolwiek treści dziennika.
 
 - zasady wsparcia: `SUPPORT.md`,
-- proces zglaszania podatnosci: `SECURITY.md`.
+- zgłaszanie podatności: `SECURITY.md`.
