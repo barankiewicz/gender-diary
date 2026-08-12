@@ -56,6 +56,13 @@ user creates from it is an ordinary milestone.
 The substance a lab result measures. Carried with a free-text unit and never
 converted, interpreted, or compared to a reference range.
 
+**Lab series**:
+One line on a lab chart: the results of one analyte that share a unit. The unit
+is the key, trimmed of surrounding whitespace and otherwise left alone, so two
+spellings are two series and nothing is ever joined or converted. Results with
+no unit form their own series. A key, not a judgement about what a unit means.
+_Avoid_: Trend line, chart line, unit group
+
 **Mood**:
 One of five discrete levels. Distinct from a gender dimension: it has no endpoint
 labels and no configurable range.
