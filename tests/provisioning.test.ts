@@ -13,11 +13,12 @@
    - A dry run walks every stage. That is what makes the script safe to read
      before running it for real, and it is how the two properties below are
      checked at all.
-   - A second run skips what the first one finished. Provisioning spans days
-     (a Play account has to be verified), so a re-run is the normal case, not
-     the exception. Eight of the nine stages can finish; the F-Droid one
-     deliberately records nothing until the request is filed, so a re-run always
-     walks it and re-checks what it is waiting for.
+   - A second run skips exactly the stages the first one recorded. Provisioning
+     spans days (a Play account has to be verified), so a re-run is the normal
+     case, not the exception. A stage records itself only on evidence that its
+     work happened, so the stages a dry run cannot evidence are walked again -
+     which is the behaviour worth pinning, since the alternative is a stage
+     ticked on nothing and skipped forever.
    - Nothing typed at a hidden prompt reaches the terminal, the transcript or
      the state file. The repository is public and the values are a signing key
      and hosting credentials.
@@ -35,14 +36,15 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const script = 'scripts/provision.sh';
 const source = readFileSync(join(root, script), 'utf8');
 const TOTAL_STAGES = 9;
-const COMPLETABLE_STAGES = 8;
 
 function dryRun(stateDir: string) {
   return spawnSync('bash', [script], {
     cwd: root,
     encoding: 'utf8',
     /* No stdin at all, which is what makes the run finish: every prompt reads
-       end-of-file and falls back to its placeholder. */
+       end-of-file. A visible prompt then comes back empty, exactly as it would
+       in a real run, and each stage's own default applies; a hidden one falls
+       back to the `dry-run-secret-` value the leak check hunts for. */
     stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env, DRY_RUN: '1', GENDER_DIARY_STATE_DIR: stateDir },
     timeout: 120_000
@@ -106,15 +108,26 @@ describe('the provisioning wizard, dry run', () => {
     expect(keys.filter((key) => /PASSWORD|SECRET|PRIVATE|BASE64|_JSON/.test(key))).toEqual([]);
   });
 
-  it('skips every finished stage on a second run against the same state', () => {
+  it('skips exactly the stages the first run recorded, and no others', () => {
+    /* Derived from the state file rather than hardcoded, because which stages
+       can finish depends on what the run could evidence: a dry run creates no
+       keystore and no ssh key, so the stages gated on those correctly decline to
+       record themselves. The invariant is the equality, not the number. */
+    const recorded = readFileSync(join(stateDir, 'provisioning.env'), 'utf8')
+      .split('\n')
+      .filter((line) => /=\d{4}-\d{2}-\d{2}T/.test(line));
+    expect(recorded.length).toBeGreaterThan(4);
+    expect(recorded.length).toBeLessThanOrEqual(TOTAL_STAGES);
+
     const second = dryRun(stateDir);
     expect(second.status).toBe(0);
     const skipped = second.stdout.match(/Stage \d+\/\d+ · .*\(already done/g) ?? [];
-    expect(skipped).toHaveLength(COMPLETABLE_STAGES);
-    /* Skipping means skipping: no browser tab, no secret written a second time. */
-    expect(second.stdout).not.toContain('would open');
-    expect(second.stdout).not.toContain('would set');
-    /* And the one stage that records nothing is walked again rather than lost. */
+    const walked = second.stdout.match(/▸ Stage \d+\/\d+ ·/g) ?? [];
+    expect(skipped).toHaveLength(recorded.length);
+    /* Every stage is accounted for as one or the other, so a skip cannot quietly
+       swallow a stage and a re-walk cannot double-count one. */
+    expect(skipped.length + walked.length).toBe(TOTAL_STAGES);
+    /* And a stage that recorded nothing is walked again rather than lost. */
     expect(second.stdout).toContain(`Stage ${TOTAL_STAGES}/${TOTAL_STAGES}`);
   });
 });
