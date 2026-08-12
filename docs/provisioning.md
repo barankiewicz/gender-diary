@@ -71,12 +71,11 @@ password manager before the key exists.
 - **Building and signing the Android artifacts** belongs to ticket 18. The
   wizard generates the keystore and puts it in the `release` environment; the
   three names in the table above are the whole seam between them.
-- **The landing site** is a separate repository with separate deployment
-  permissions (ADR-0019). It ships its own wizard, `scripts/lhpl-setup.sh`,
-  which owns the lh.pl account and the site's DNS. Stage 4 checks whether that
-  work is done and hands over to it rather than keeping a second copy of the
-  steps.
+- **Anything to do with the landing site.** It has its own origin, its own
+  hosting account and its own deployment credentials, which nothing here can
+  reach (ADR-0019), it is already deployed, and it keeps its own wizard for that
+  work. This script is the app's.
 - **Submitting to F-Droid** waits for ticket 18: F-Droid rebuilds the published
   source itself, so a request filed before the metadata and the reproducibility
-  result exist gets closed. Stage 9 checks for them and records nothing until
-  the request is actually filed.
+  result exist gets closed. The last stage checks for them and records nothing
+  until the request is actually filed.
