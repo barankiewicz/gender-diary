@@ -1,8 +1,8 @@
 # Gender Diary
 
-A local-first journal for tracking gender transition day by day. All data stays on
-the device; there is no server, no account, and no networked concept anywhere in
-this glossary.
+A local-first journal for tracking gender transition day by day. There is no
+Gender Diary account or application backend. Journal data stays on the device
+unless the person deliberately creates or delivers an archive.
 
 ## Language
 
@@ -161,12 +161,44 @@ The daily prompt to log an entry, skipped on days that already have one. A
 preference rather than a reminder: it has no name, no type and no recurrence
 choice, and cannot be deleted.
 
+### Privacy and access
+
+**Data key**:
+The random key the journal's contents are encrypted under. Never derived from an
+access secret: the journal passphrase wraps it on the web and Android Keystore wraps
+it on Android. Changing an access secret rewraps the key rather than re-encrypting
+the journal.
+_Avoid_: Master key, database key (it covers photos and side files too)
+
+**Journal passphrase**:
+The secret that unlocks the encrypted journal on the web after the previous
+session has ended. Gender Diary cannot recover it; it is distinct from both the
+app-lock PIN and an archive password.
+_Avoid_: Master password, account password, PIN
+
+**App lock**:
+The PIN or biometric gate that limits casual access through the app. It can provide
+shorter access during an unlocked session, but it is not the journal passphrase and
+does not provide data-preserving recovery.
+_Avoid_: Database password, encryption password
+
 ### Getting data out
 
 **Archive**:
 The versioned, encrypted file produced by export and consumed by import. Holds
 journal data and portable preferences only.
 _Avoid_: Backup (backup names the habit, not the file), dump, export file
+
+**Backup**:
+The habit and result of keeping an archive outside the current installation so the
+journal can be restored after loss. A backup is an immutable snapshot, not a live
+or bidirectional copy.
+_Avoid_: Sync, replica
+
+**Backup destination**:
+The folder or document provider chosen to receive scheduled archives on Android.
+It belongs to this installation and never travels in an archive.
+_Avoid_: Cloud account, backup server
 
 **Portable preference**:
 A setting that describes the journal and travels in an archive: display name,
