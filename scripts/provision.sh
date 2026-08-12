@@ -186,8 +186,13 @@ finish() {
 # Everything else in phase 2 is scripted somewhere else: ticket 05 owns nginx
 # and the release directories on the VPS, ticket 18 owns building and signing
 # the Android artifacts. What is left over is what this file walks - a DNS
-# record, a hosting account, a store registration, a signing key - and none of
+# record, deployment access, a store registration, a signing key - and none of
 # it can be done by anything that is not a person with a browser and a card.
+#
+# The app only. The landing site is a separate repository with its own origin,
+# its own hosting account and its own deployment credentials (ADR-0019), it is
+# already deployed, and it keeps its own wizard for that work. Nothing here
+# reaches it, which is the point of the boundary rather than a gap in this file.
 #
 # Three rules the stages hold to:
 #   - Say what a value is for, and what will read it, before asking for it.
@@ -200,7 +205,7 @@ finish() {
 # and describes every step it would have taken.
 # ──────────────────────────────────────────────────────────────────────────
 
-TOTAL_STAGES=9
+TOTAL_STAGES=8
 
 DRY_RUN="${DRY_RUN:-0}"
 
@@ -214,11 +219,11 @@ if [[ ! -f "$ADR" || ! -f "$RELEASE_WORKFLOW" ]]; then
   exit 1
 fi
 
-# The two origins and the application ID are decided (ticket 01), and the ADR's
-# "The values" section is the committed record of them. Read from there, because
-# a wizard holding its own copy is a wizard that can walk you through setting up
-# an origin the app does not live on - and the Journal's origin is the one value
-# that cannot be moved once somebody has stored a Journal on it.
+# The Journal's origin and the application ID are decided (ticket 01), and the
+# ADR's "The values" section is the committed record of them. Read from there,
+# because a wizard holding its own copy is a wizard that can walk you through
+# setting up an origin the app does not live on - and the Journal's origin is the
+# one value that cannot be moved once somebody has stored a Journal on it.
 # One awk rather than sed piped into head: under `set -e` with pipefail, head
 # closing the pipe after the first line can leave sed killed by SIGPIPE, and an
 # assignment from a failed substitution takes the whole script down.
@@ -228,9 +233,8 @@ adr_value() {
   }' "$ADR"
 }
 JOURNAL_ORIGIN=$(adr_value "Journal")
-LANDING_ORIGIN=$(adr_value "Landing site")
 ANDROID_APP_ID=$(adr_value "Android application ID")
-for _name in JOURNAL_ORIGIN LANDING_ORIGIN ANDROID_APP_ID; do
+for _name in JOURNAL_ORIGIN ANDROID_APP_ID; do
   [[ -n "${!_name}" ]] || {
     printf 'Could not read %s out of %s: the "The values" section has changed shape.\n' \
       "$_name" "$ADR" >&2
@@ -248,7 +252,6 @@ RELEASE_ENV=$(awk '$1 == "environment:" { print $2; exit }' "$RELEASE_WORKFLOW")
 
 REPO_DEFAULT=$(git config --get remote.origin.url 2>/dev/null |
   sed -e 's#\.git$##' -e 's#^.*[:/]\([^/]*/[^/]*\)$#\1#') || true
-LANDING_REPO_DEFAULT="${REPO_DEFAULT%/*}/gender-diary-landing"
 VPS_ALIAS="${GENDER_DIARY_VPS_ALIAS:-zabka-vps}"
 
 # ── Where the captured values go ───────────────────────────────────────────
@@ -365,28 +368,15 @@ set_env_var() {
 # skip a stage on evidence rather than on a note it left itself. A dry run
 # answers no to all of them, so it walks the whole procedure.
 
-resolved_address() {
-  if command -v dig >/dev/null 2>&1; then
-    dig +short "$1" | tail -n1
-  else
-    getent hosts "$1" | awk '{print $1}' | tail -n1
-  fi
-}
-
 resolves_to() {
   if (( DRY_RUN )); then note "would check that $1 resolves to $2"; return 1; fi
   local answer
-  answer=$(resolved_address "$1")
+  if command -v dig >/dev/null 2>&1; then
+    answer=$(dig +short "$1" | tail -n1)
+  else
+    answer=$(getent hosts "$1" | awk '{print $1}' | tail -n1)
+  fi
   [[ -n "$answer" && "$answer" == "$2" ]]
-}
-
-# Resolving at all, for the origin whose address this repository has no business
-# knowing: the landing site's target is in the hosting panel, and the wizard is
-# told not to assume it. So this can say a record exists and cannot say it is
-# the right one.
-resolves() {
-  if (( DRY_RUN )); then note "would check that $1 resolves"; return 1; fi
-  [[ -n "$(resolved_address "$1")" ]]
 }
 
 release_env_exists() {
@@ -409,19 +399,6 @@ env_secret_set() {
   local listed
   listed=$(gh secret list --repo "$REPO" --env "$RELEASE_ENV" 2>/dev/null) || return 1
   names_include "$listed" "$1"
-}
-
-# Both halves, because the credentials alone are not evidence of the record: an
-# account with its FTP secrets set and no A record would skip this stage forever
-# while the site answered with nothing.
-landing_deploy_ready() {
-  if (( DRY_RUN )); then note "would check the landing site's record and credentials"; return 1; fi
-  command -v gh >/dev/null 2>&1 || return 1
-  resolves "$LANDING_ORIGIN" || return 1
-  local secrets variables
-  secrets=$(gh secret list --repo "$LANDING_REPO" 2>/dev/null) || return 1
-  variables=$(gh variable list --repo "$LANDING_REPO" 2>/dev/null) || return 1
-  names_include "$secrets" FTP_PASSWORD && names_include "$variables" FTP_SERVER_DIR
 }
 
 # The VPS address comes from the ssh alias rather than from a copy of the IP, so
@@ -498,27 +475,17 @@ else
     warn "gh is installed but not logged in. Run: gh auth login"
   fi
   say ""
-  say "Which repositories, so a secret cannot land in the wrong one. They are"
-  say "deliberately separate: the landing site deploys with credentials this"
-  say "repository has never seen, and the reverse (ADR-0019)."
+  say "And which repository, so a secret cannot land in the wrong one. Only this"
+  say "one: the landing site has its own origin, its own hosting account and its"
+  say "own deployment credentials, which nothing here can reach (ADR-0019)."
   ask REPO "This repository [$REPO_DEFAULT]:"
   REPO="${REPO:-$REPO_DEFAULT}"
-  ask LANDING_REPO "The landing site's repository [$LANDING_REPO_DEFAULT]:"
-  LANDING_REPO="${LANDING_REPO:-$LANDING_REPO_DEFAULT}"
-  say ""
-  say "Stage 4 hands off to the landing repository's own wizard rather than"
-  say "keeping a second copy of the lh.pl steps. It needs a checkout to run in."
-  ask LANDING_DIR "Path to a landing-site checkout (blank if you have none):"
   write_env REPO "$REPO"
-  write_env LANDING_REPO "$LANDING_REPO"
-  write_env LANDING_DIR "$LANDING_DIR"
   mark_done PREFLIGHT
 fi
 
-# Whether stage 1 just asked or skipped, the rest of the run needs these.
+# Whether stage 1 just asked or skipped, the rest of the run needs this.
 REPO="$(_existing REPO || true)"; REPO="${REPO:-$REPO_DEFAULT}"
-LANDING_REPO="$(_existing LANDING_REPO || true)"; LANDING_REPO="${LANDING_REPO:-$LANDING_REPO_DEFAULT}"
-LANDING_DIR="$(_existing LANDING_DIR || true)"
 
 # ── 2 ─────────────────────────────────────────────────────────────────────
 if is_done RELEASE_ENVIRONMENT; then
@@ -593,51 +560,6 @@ else
 fi
 
 # ── 4 ─────────────────────────────────────────────────────────────────────
-if is_done DNS_AND_HOSTING_LANDING; then
-  skip_stage "The landing site's origin and its deploy" \
-    "recorded $(_existing DNS_AND_HOSTING_LANDING)"
-elif landing_deploy_ready; then
-  skip_stage "The landing site's origin and its deploy" \
-    "$LANDING_ORIGIN resolves and $LANDING_REPO holds its FTP credentials"
-else
-  stage "The landing site's origin and its deploy"
-  say "The site lives at $LANDING_ORIGIN, on shared hosting, in its own"
-  say "repository, with its own credentials. That separation is the decision in"
-  say "ADR-0019 rather than an accident of who set up what: a marketing"
-  say "dependency or a bad deploy must not be able to reach the origin holding"
-  say "somebody's Journal."
-  say ""
-  say "So this stage checks the state and hands over. $LANDING_REPO ships its"
-  say "own wizard, scripts/lhpl-setup.sh, which maps the domain to a directory"
-  say "on the account, issues the certificate, and sets the three FTP secrets"
-  say "its deploy workflow reads. A second copy of those steps here would drift"
-  say "from the one that is live, and would put this repository's session in"
-  say "reach of the other repository's credentials."
-  say ""
-  if [[ -n "$LANDING_DIR" && -x "$LANDING_DIR/scripts/lhpl-setup.sh" ]]; then
-    say "Found it at $LANDING_DIR/scripts/lhpl-setup.sh"
-    if confirm "Run it now? This wizard picks up again afterwards."; then
-      if (( DRY_RUN )); then
-        note "would run scripts/lhpl-setup.sh in $LANDING_DIR"
-      elif ! (cd "$LANDING_DIR" && ./scripts/lhpl-setup.sh); then
-        warn "it exited non-zero; finish it in that checkout before ticking anything"
-      fi
-    fi
-    if landing_deploy_ready || confirm "Record the landing side as done?"; then
-      mark_done DNS_AND_HOSTING_LANDING
-    else
-      SKIPPED+=("the landing site: run scripts/lhpl-setup.sh in $LANDING_REPO")
-    fi
-  else
-    warn "No landing checkout to run it from, so there is nothing to record."
-    step "Clone $LANDING_REPO, then run scripts/lhpl-setup.sh inside it."
-    note "Nothing is written down here on purpose. Offering to tick a step that"
-    note "cannot have been taken yet is how a stage gets skipped forever."
-    SKIPPED+=("the landing site: run scripts/lhpl-setup.sh in $LANDING_REPO")
-  fi
-fi
-
-# ── 5 ─────────────────────────────────────────────────────────────────────
 if is_done VPS_DEPLOY_ACCESS; then
   skip_stage "The key CI deploys the Journal with" "recorded $(_existing VPS_DEPLOY_ACCESS)"
 elif env_secret_set VPS_DEPLOY_KEY; then
@@ -729,7 +651,7 @@ else
   fi
 fi
 
-# ── 6 ─────────────────────────────────────────────────────────────────────
+# ── 5 ─────────────────────────────────────────────────────────────────────
 if is_done PLAY_ACCOUNT; then
   skip_stage "A Google Play developer account, and the app record" \
     "recorded $(_existing PLAY_ACCOUNT)"
@@ -760,7 +682,7 @@ else
   fi
 fi
 
-# ── 7 ─────────────────────────────────────────────────────────────────────
+# ── 6 ─────────────────────────────────────────────────────────────────────
 if is_done PLAY_DELIVERY; then
   skip_stage "The credential a release uploads to Play with" \
     "recorded $(_existing PLAY_DELIVERY)"
@@ -808,7 +730,7 @@ else
   fi
 fi
 
-# ── 8 ─────────────────────────────────────────────────────────────────────
+# ── 7 ─────────────────────────────────────────────────────────────────────
 if is_done ANDROID_UPLOAD_KEY; then
   skip_stage "The Android signing key, and where it lives" \
     "recorded $(_existing ANDROID_UPLOAD_KEY)"
@@ -953,7 +875,7 @@ else
   fi
 fi
 
-# ── 9 ─────────────────────────────────────────────────────────────────────
+# ── 8 ─────────────────────────────────────────────────────────────────────
 if is_done FDROID_SUBMISSION; then
   skip_stage "F-Droid, and what it is waiting for" "recorded $(_existing FDROID_SUBMISSION)"
 else

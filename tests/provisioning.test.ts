@@ -35,7 +35,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const script = 'scripts/provision.sh';
 const source = readFileSync(join(root, script), 'utf8');
-const TOTAL_STAGES = 9;
+const TOTAL_STAGES = 8;
 
 function dryRun(stateDir: string) {
   return spawnSync('bash', [script], {
@@ -81,10 +81,11 @@ describe('the provisioning wizard, dry run', () => {
   });
 
   it('reads the decided identities out of ADR-0019 rather than carrying a copy', () => {
+    /* The two the app's own provisioning turns on. The landing origin is the
+       third decided value and this script has no business with it. */
     expect(first.stdout).toContain('app.genderdiary.barankiewicz.dev');
-    expect(first.stdout).toContain('genderdiary.barankiewicz.dev');
     expect(first.stdout).toContain('dev.barankiewicz.genderdiary');
-    /* The point of the two above: the script's own text has neither. */
+    /* The point of both: the script's own text has neither. */
     expect(source).not.toContain('genderdiary.barankiewicz.dev');
     expect(source).not.toContain('dev.barankiewicz.genderdiary');
   });
