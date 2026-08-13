@@ -49,10 +49,12 @@ and decode contract, with centralized version routing.
 	`decodeArchive` to the matching reader codec.
 - Version routing: `src/lib/data/archive/pack.ts` now uses that composed seam
 	for both write and read paths, while `decodeArchive` applies payload
-	migrations after version-specific decode.
+	migrations after version-specific decode. `src/lib/data/archive/container.ts`
+	now reads the current supported archive version from the codec registry
+	instead of carrying an independent version constant.
 - Migration-order proof: `src/lib/data/archive/codec.test.ts` verifies decode
-	dispatch at the archive version and then checks the migration steps run in
-	order.
+	dispatch at the archive version over a real byte-reader payload and then
+	checks the migration steps run in order.
 - Targeted archive tests run:
 	- `npm test -- src/lib/data/archive/codec.test.ts src/lib/data/archive/payload.test.ts src/lib/data/archive/pack.test.ts src/lib/data/journal/archive.test.ts src/lib/data/journal/restore.test.ts`
 - Full verification run:
