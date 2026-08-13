@@ -1,0 +1,117 @@
+{
+  "releaseVersion": "2.2.0",
+  "stages": {
+    "stage1": {
+      "passedAt": "2026-08-13T14:40:00Z",
+      "releaseMatrix": {
+        "ranAt": "2026-08-13T14:34:27Z",
+        "checks": {
+          "update": true,
+          "migration": true,
+          "encryptionConversion": true,
+          "archiveRoundTrip": true,
+          "scheduledBackup": true,
+          "rollback": true
+        }
+      },
+      "evidence": {
+        "hostedWebBeta": true,
+        "landingSiteLive": true,
+        "truthfulAvailabilityLabels": true
+      }
+    },
+    "stage2": {
+      "passedAt": "",
+      "releaseMatrix": {
+        "ranAt": "",
+        "checks": {
+          "update": false,
+          "migration": false,
+          "encryptionConversion": false,
+          "archiveRoundTrip": false,
+          "scheduledBackup": false,
+          "rollback": false
+        }
+      },
+      "evidence": {
+        "androidApi26": false,
+        "androidCurrent": false,
+        "aggressiveBackgroundDevice": false
+      }
+    },
+    "stage3": {
+      "passedAt": "",
+      "releaseMatrix": {
+        "ranAt": "",
+        "checks": {
+          "update": false,
+          "migration": false,
+          "encryptionConversion": false,
+          "archiveRoundTrip": false,
+          "scheduledBackup": false,
+          "rollback": false
+        }
+      },
+      "evidence": {
+        "playOpenTesting": false,
+        "signedGithubReleaseApk": false
+      }
+    },
+    "stage4": {
+      "passedAt": "",
+      "releaseMatrix": {
+        "ranAt": "",
+        "checks": {
+          "update": false,
+          "migration": false,
+          "encryptionConversion": false,
+          "archiveRoundTrip": false,
+          "scheduledBackup": false,
+          "rollback": false
+        }
+      },
+      "evidence": {
+        "fdroidSubmission": false,
+        "fdroidRebuildPassed": false,
+        "fdroidDependencyCheckPassed": false
+      }
+    },
+    "stable": {
+      "passedAt": "",
+      "releaseMatrix": {
+        "ranAt": "",
+        "checks": {
+          "update": false,
+          "migration": false,
+          "encryptionConversion": false,
+          "archiveRoundTrip": false,
+          "scheduledBackup": false,
+          "rollback": false
+        }
+      },
+      "evidence": {
+        "update": false,
+        "migration": false,
+        "encryptionConversion": false,
+        "archiveRoundTrip": false,
+        "scheduledBackup": false,
+        "rollback": false
+      }
+    }
+  },
+  "channels": {
+    "web": {
+      "state": "live",
+      "switchedAt": "2026-08-13T14:40:10Z"
+    },
+    "play": {
+      "state": "label-only"
+    },
+    "obtainium": {
+      "state": "label-only"
+    },
+    "fdroid": {
+      "state": "label-only"
+    }
+  }
+}
