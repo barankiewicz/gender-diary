@@ -1,6 +1,6 @@
 # 05 - Archive codec composition
 
-Status: ready-for-agent
+Status: done
 Blocked by: none
 
 Archive behavior is currently split across payload typing, packing, journal
@@ -40,7 +40,7 @@ and decode contract, with centralized version routing.
 
 - [x] Add a verification note summarizing codec map, version routing, and test
 	coverage.
-- [ ] Set `Status: done` only after all acceptance boxes are ticked.
+- [x] Set `Status: done` only after all acceptance boxes are ticked.
 
 ## Verification note
 
