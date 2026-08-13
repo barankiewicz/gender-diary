@@ -66,3 +66,8 @@ node scripts/check-progressive-release.mjs --file docs/progressive-release-recor
 
 Each command must pass before marking the stage complete and before making the
 next channel button live on the landing site.
+
+## Stage2 execution aid
+
+Use docs/progressive-release-stage2-checklist.md to run and record the Android
+internal testing gate that drives stage2 evidence.
