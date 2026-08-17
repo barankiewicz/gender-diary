@@ -111,6 +111,15 @@ result is attributable to whichever regimen episode was in effect when it was
 logged.
 _Avoid_: Regimen alone (ambiguous - always a specific, dated episode), prescription
 
+**Side effect**:
+A symptom record - free-text name/type, a severity on a 1-5 ordered scale, and
+an epoch day - structurally independent of the regimen episode: it carries no
+episode reference and works whether or not one exists. Not an entry: no mood,
+dimension values, tags or note. Purely descriptive - no severity level maps to
+a recommendation, warning or escalation.
+_Avoid_: Symptom (this app's own term is side effect), adverse event (implies
+clinical reporting this is not)
+
 ### Reflection and retrospection
 
 **Wrapped**:
