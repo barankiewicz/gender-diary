@@ -102,6 +102,13 @@ day it was rather than just that it was hard.
 A one-tap tag for what felt right today, the positive counterpart to a dysphoria
 type on the same entry.
 
+**Tally event**:
+One tap of the misgendering or correct-gendering counter, carrying only its kind
+and an optional free-text context. Its own record type, not a variant of Entry
+or quick log: no mood, dimension values, tags or note. The quantitative
+counterpart to a social or societal dysphoria tag - a trend of how often, not
+just that it happened on a given day.
+
 ### HRT and medication
 
 **Regimen episode**:
