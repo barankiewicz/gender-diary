@@ -67,6 +67,39 @@ spellings are two series and nothing is ever joined or converted. Results with
 no unit form their own series. A key, not a judgement about what a unit means.
 _Avoid_: Trend line, chart line, unit group
 
+**Lab draw context**:
+Where a lab draw fell relative to dosing, recorded on the result: hours since the
+last dose for oral, sublingual, patch and gel, or **day of interval** for an
+injection. Derived once, when the result is saved, from the dose log as it stood
+then, and not recomputed afterwards - a dose corrected months later must not
+rewrite the context on a result someone has already discussed at an appointment.
+The one figure in this schema that is stored rather than derived on read, argued
+where the columns are defined. Descriptive: it says where a draw fell and never
+that one draw time is better than another.
+_Avoid_: Trough level, peak level, optimal timing (all judgements this does not
+make), draw window
+
+**Day of interval**:
+Which day of the current injection interval a draw fell on, counting the
+injection day as day 1. Measured from the dose log alone, never from a **regimen
+episode**'s free-text interval or from a **dose schedule** - a schedule is
+optional, and a figure that needed one would go missing for anyone who logs
+injections without setting it. Used instead of an hours figure for IM and SC,
+where hours say nothing about a depot with a days-to-weeks half-life.
+
+**Lab provider**:
+Which lab drew a result. Free text, exactly as free as an **Analyte**'s unit: no
+fixed list, no normalization, and no matching between two spellings of one lab.
+_Avoid_: Laboratory name as an identifier, provider id
+
+**Comparability flag**:
+A note on a lab chart saying its **Lab series** holds points that were not drawn
+under the same conditions - different positions in the dosing interval, different
+routes, or different providers. It says so without splitting the series or
+refusing to draw it, because the series-folding rule considers only the unit.
+Points where a figure is simply absent are not a disagreement.
+_Avoid_: Warning, invalid series, unreliable
+
 **Mood**:
 One of five discrete levels. Distinct from a gender dimension: it has no endpoint
 labels and no configurable range.
