@@ -108,7 +108,10 @@ type on the same entry.
 A drug, ester, dose, route and interval combination as a dated range, in effect
 until superseded by the next episode. Every entry, photo, measurement and lab
 result is attributable to whichever regimen episode was in effect when it was
-logged.
+logged. Not a preference, portable or device-local: it is attributed data
+every other record resolves against by timestamp, not a setting. Not a
+Reminder either: a Reminder is a prompt to do something, while a regimen
+episode is a record of what has been true since a given day.
 _Avoid_: Regimen alone (ambiguous - always a specific, dated episode), prescription
 
 ### Reflection and retrospection
