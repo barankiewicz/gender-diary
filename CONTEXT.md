@@ -147,13 +147,14 @@ and the comparison is presented without a target rate, a streak or a pass/fail
 reading.
 _Avoid_: Missed dose (a judgement; a slot with nothing logged is just that)
 
-**Pause**:
+**Dose pause**:
 A dated range on one regimen episode during which no dose is expected, marked
 planned or accidental. Its end day may be empty, meaning the pause is still
 running. Slots inside a pause are left out of the comparison, so a break does
 not read as a run of missed doses. Neither reason is treated as better than the
 other.
-_Avoid_: Break, gap (a gap is what a pause explains), stopping HRT
+_Avoid_: Pause alone (ambiguous - always a pause in dosing), break, gap (a gap
+is what a dose pause explains), stopping HRT
 
 ### Reflection and retrospection
 
