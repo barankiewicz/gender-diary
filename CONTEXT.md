@@ -54,7 +54,11 @@ user creates from it is an ordinary milestone.
 
 **Analyte**:
 The substance a lab result measures. Carried with a free-text unit and never
-converted, interpreted, or compared to a reference range.
+interpreted or compared to a reference range. Never converted either, except
+for a small built-in allowlist with a fixed physical conversion factor (e.g.
+estradiol pg/mL and pmol/L), which may show a secondary converted value
+alongside the native one - see ADR 0026. The native value stays primary and
+the exception never applies to a free-text or unrecognized unit.
 
 **Lab series**:
 One line on a lab chart: the results of one analyte that share a unit. The unit
@@ -86,6 +90,45 @@ A named set of gender dimensions.
 **Active preset**:
 The preset whose dimensions the entry editor offers by default. It governs what is
 offered, never what an entry already holds.
+
+### Dysphoria and euphoria
+
+**Dysphoria type**:
+One of eight named categories (physical, biochemical, social, societal, sexual,
+presentational, existential) an entry can be tagged with, naming what kind of hard
+day it was rather than just that it was hard.
+
+**Euphoria capture**:
+A one-tap tag for what felt right today, the positive counterpart to a dysphoria
+type on the same entry.
+
+### HRT and medication
+
+**Regimen episode**:
+A drug, ester, dose, route and interval combination as a dated range, in effect
+until superseded by the next episode. Every entry, photo, measurement and lab
+result is attributable to whichever regimen episode was in effect when it was
+logged.
+_Avoid_: Regimen alone (ambiguous - always a specific, dated episode), prescription
+
+### Reflection and retrospection
+
+**Wrapped**:
+A retrospective screen for a completed week, month or year, built on the same
+`recap(fromEpochDay, toEpochDay)` seam as other reporting. Like a recap, nothing
+about a wrapped is stored; opening one always recomputes from that range's
+entries, milestones and photos.
+_Avoid_: Report, summary
+
+**On-this-day**:
+A daily retrospective offering what was logged a month, six months or a year
+before today. Only ever resurfaces a **good day** (below) - never a bad one.
+
+**Good day**:
+The bar a day must clear for on-this-day to resurface it: a day average mood at
+or above the mood scale's midpoint, a euphoria capture logged that day, or
+either. The rule, not just a definition: on-this-day must never show a day that
+doesn't clear this bar.
 
 ### Vocabulary and retention
 
