@@ -114,6 +114,47 @@ Reminder either: a Reminder is a prompt to do something, while a regimen
 episode is a record of what has been true since a given day.
 _Avoid_: Regimen alone (ambiguous - always a specific, dated episode), prescription
 
+**Dose event**:
+One dose taken, skipped or changed, at a real time of day. Its own record type,
+not an **Entry**: it carries no mood, dimension values, tags or note. What
+fields it has depends on its route - an injection also records a site and a
+vehicle, a patch or gel records an application site, and an oral or sublingual
+dose records neither. It stores no regimen episode; the one it belongs to is
+resolved from its timestamp, so backdating a dose moves it.
+_Avoid_: Dose alone (that is the amount, a field on this), injection (only one
+of six routes), medication log
+
+**Dose event timestamp**:
+The one timestamp in the app that is load-bearing data. An **Entry**'s
+Timestamp only orders same-day entries and never decides which day an entry
+belongs to; a dose event's says when the dose was actually taken, because
+hours-since-last-dose is derived from it and sublingual estradiol peaks in one
+to two hours.
+
+**Dose schedule**:
+How often one regimen episode expects a dose: every so many days, so many doses
+per day. Structured, unlike the episode's own free-text interval, because slots
+are generated from it. Counted from the episode's start day, so editing a
+schedule does not shift the slots already generated. One per episode.
+_Avoid_: Reminder (that is a prompt to act; this expects nothing of the user),
+regimen interval
+
+**Dose slot**:
+One dose a **dose schedule** expected, on a given day and in a given position
+within that day. Nothing stores a slot; they are computed from the schedule for
+whatever range is being looked at. A slot is compared against what was logged,
+and the comparison is presented without a target rate, a streak or a pass/fail
+reading.
+_Avoid_: Missed dose (a judgement; a slot with nothing logged is just that)
+
+**Pause**:
+A dated range on one regimen episode during which no dose is expected, marked
+planned or accidental. Its end day may be empty, meaning the pause is still
+running. Slots inside a pause are left out of the comparison, so a break does
+not read as a run of missed doses. Neither reason is treated as better than the
+other.
+_Avoid_: Break, gap (a gap is what a pause explains), stopping HRT
+
 ### Reflection and retrospection
 
 **Wrapped**:
