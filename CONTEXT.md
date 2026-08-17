@@ -26,9 +26,9 @@ decides which screens have a loading state.
 _Avoid_: Metadata, lookup data, config
 
 **Entry**:
-One logged moment, carrying a mood, gender dimension values, tags, a note, and
-photos. A day can hold several. Always holds at least one of those five; an entry
-with none of them does not exist.
+One logged moment, carrying a mood, gender dimension values, tags, a note,
+photos, and body-region intensities. A day can hold several. Always holds at
+least one of those six; an entry with none of them does not exist.
 _Avoid_: Log, record, check-in (a check-in is a daily prompt, not an entry)
 
 **Photo**:
