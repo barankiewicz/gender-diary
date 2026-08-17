@@ -94,7 +94,7 @@ offered, never what an entry already holds.
 ### Dysphoria and euphoria
 
 **Dysphoria type**:
-One of eight named categories (physical, biochemical, social, societal, sexual,
+One of seven named categories (physical, biochemical, social, societal, sexual,
 presentational, existential) an entry can be tagged with, naming what kind of hard
 day it was rather than just that it was hard.
 
