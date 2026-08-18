@@ -197,15 +197,15 @@ _Avoid_: Pause alone (ambiguous - always a pause in dosing), break, gap (a gap
 is what a dose pause explains), stopping HRT
 
 **Hormone curve**:
-An estradiol level band over the dose log, per **injectable ester**, and only
-for an ester whose published fit is tight enough to be worth drawing. Always a
-band and never a line: the parameters are a published posterior rather than a
-measurement, and one line through them would claim a precision the literature
-does not have. Nothing about it is stored - it is recomputed from the dose log
-and the regimen episode history on every read. Descriptive, like everything else
-in this track: no point on it is a target, an expected level or a normal one.
-_Avoid_: Predicted level, estimated level, simulation (all claim more than a
-band does), hormone graph
+An estradiol curve over the dose log, drawn one of two ways depending on the
+route. Injectable doses on one of the four **injectable esters** get a fitted
+band; oral, sublingual, patch and gel doses get a **qualitative curve** instead,
+because no published fit like the injectable one exists for these routes.
+Nothing about either is stored - both are recomputed from the dose log and the
+regimen episode history on every read. Descriptive, like everything else in
+this track: no point on either is a target, an expected level or a normal one.
+_Avoid_: Predicted level, estimated level, simulation (all claim more than
+either curve does), hormone graph
 
 **Injectable ester**:
 Which ester a **regimen episode** is on, out of the four this app draws:
@@ -221,6 +221,23 @@ is the quality of the fit, not the ester's popularity.
 _Avoid_: Ester alone (that is the free-text field on a regimen episode; this is
 the closed vocabulary read out of it), unsupported ester (nothing is missing -
 the published data is not good enough)
+
+**Qualitative curve**:
+A rise/plateau/fall shape over the dose log, for oral, sublingual, patch or gel
+estradiol, with no compartment model or uncertainty math behind it - the
+published fit the **injectable ester** curve rests on does not exist in that
+form for these routes. Always a single line, the opposite of the injectable
+curve's band: it carries no width to claim, because there is no posterior to
+draw one from. Its height means nothing in pg/mL until an optional per-user
+scale factor calibrates it against the reader's own lab results; unfitted, it
+is drawn with no unit at all rather than a number this app cannot back up. On
+screen it is labelled and shaped so it cannot be mistaken for the injectable
+curve's band at a glance - its own heading, a permanent notice on every card, a
+dashed line instead of a filled shape.
+_Avoid_: Predicted level, estimated level, band, hormone graph (the injectable
+curve's words), hypothetical curve (a different, removed idea - ticket 10's
+undecylate curve was a real fit judged too loose to draw; this has no fit at
+all to judge)
 
 **Side effect**:
 A symptom record - free-text name/type, a severity on a 1-5 ordered scale, and
