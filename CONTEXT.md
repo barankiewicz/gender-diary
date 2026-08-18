@@ -197,15 +197,13 @@ _Avoid_: Pause alone (ambiguous - always a pause in dosing), break, gap (a gap
 is what a dose pause explains), stopping HRT
 
 **Hormone curve**:
-An estradiol level band over the dose log, per **injectable ester**, from a
-three-compartment pharmacokinetic model. Only drawn where the published fit is
-tight enough to be worth drawing, which is what keeps a band worth reading.
-Always a band and never a line: the parameters are a published posterior rather
-than a measurement, and one line through them would claim a precision the
-literature does not have. Nothing
-about it is stored - it is recomputed from the dose log and the regimen episode
-history on every read. Descriptive, like everything else in this track: no
-point on it is a target, an expected level or a normal one.
+An estradiol level band over the dose log, per **injectable ester**, and only
+for an ester whose published fit is tight enough to be worth drawing. Always a
+band and never a line: the parameters are a published posterior rather than a
+measurement, and one line through them would claim a precision the literature
+does not have. Nothing about it is stored - it is recomputed from the dose log
+and the regimen episode history on every read. Descriptive, like everything else
+in this track: no point on it is a target, an expected level or a normal one.
 _Avoid_: Predicted level, estimated level, simulation (all claim more than a
 band does), hormone graph
 
