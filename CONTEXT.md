@@ -383,6 +383,14 @@ The daily prompt to log an entry, skipped on days that already have one. A
 preference rather than a reminder: it has no name, no type and no recurrence
 choice, and cannot be deleted.
 
+**Affirmation**:
+The optional affirming line the check-in carries beside its question, picked
+per day from a pool written per language rather than translated between
+languages. Part of the check-in's presentation, never its own prompt: it
+cannot appear without a check-in, turning it off changes nothing else about
+the check-in, and hiding notification titles hides it too.
+_Avoid_: Quote, motivational message, daily quote
+
 ### Privacy and access
 
 **Data key**:
