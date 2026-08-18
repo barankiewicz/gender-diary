@@ -292,6 +292,16 @@ One point in a tryout's running record of how it has felt, on the app's
 one **mood** scale. A tryout holds as many of these as someone adds over
 its life, not a single rating fixed when it was created.
 
+**Time-capsule letter**:
+A free-write note to the person's future self, sealed until a chosen
+unlock day. Whether it reads as sealed or unlocked follows from that day
+and today, the same rule that decides a **milestone**'s countdown or
+anniversary; nothing stores a sealed flag. The seal is enforced at the
+UI layer only - the row carries no encryption beyond the journal's own
+(ADR-0020) - and once the unlock day passes it stays readable for good.
+_Avoid_: Time capsule (the letter is the record; there is no separate
+container object)
+
 ### Vocabulary and retention
 
 **Tag**:
