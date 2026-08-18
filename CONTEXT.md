@@ -197,10 +197,12 @@ _Avoid_: Pause alone (ambiguous - always a pause in dosing), break, gap (a gap
 is what a dose pause explains), stopping HRT
 
 **Hormone curve**:
-An estradiol level band over the dose log, per injectable ester, from a
-three-compartment pharmacokinetic model. Always a band and never a line: the
-parameters are a published posterior rather than a measurement, and one line
-through them would claim a precision the literature does not have. Nothing
+An estradiol level band over the dose log, per **injectable ester**, from a
+three-compartment pharmacokinetic model. Only drawn where the published fit is
+tight enough to be worth drawing, which is what keeps a band worth reading.
+Always a band and never a line: the parameters are a published posterior rather
+than a measurement, and one line through them would claim a precision the
+literature does not have. Nothing
 about it is stored - it is recomputed from the dose log and the regimen episode
 history on every read. Descriptive, like everything else in this track: no
 point on it is a target, an expected level or a normal one.
@@ -208,26 +210,19 @@ _Avoid_: Predicted level, estimated level, simulation (all claim more than a
 band does), hormone graph
 
 **Injectable ester**:
-Which ester a **regimen episode** is on, out of the closed list this app has
-names for. Read from the episode's free-text drug and ester fields against a
-built-in list of names in both catalogue languages - the same fail-closed rule ADR-0026 applies
-to an analyte. An unrecognized ester, or a drug that is not estradiol, gets no
-curve rather than a guessed one. Polyestradiol phosphate is recognized and has
-no curve, because no parameters this app can use have been published for it.
+Which ester a **regimen episode** is on, out of the four this app draws:
+benzoate, valerate, cypionate and enanthate. Read from the episode's free-text
+drug and ester fields against a built-in list of names in both catalogue
+languages - the same fail-closed rule ADR-0026 applies to an analyte. Anything
+else gets no curve rather than a guessed one: an unrecognized ester, a drug that
+is not estradiol, and the two esters left out on purpose - polyestradiol
+phosphate, which has no parameters this app can use, and estradiol undecylate,
+whose published fit is too loose to be worth drawing (its plausible average
+level spans more than tenfold, against about a third for these four). The bar
+is the quality of the fit, not the ester's popularity.
 _Avoid_: Ester alone (that is the free-text field on a regimen episode; this is
-the closed vocabulary read out of it)
-
-**Hypothetical curve**:
-A **hormone curve** whose fit rests on so little data that it barely constrains
-anything. Estradiol undecylate is the only one: the published studies behind it
-are a handful of injections followed for about a fortnight, far short of an
-ester that acts for months, and its own uncertainty says so - the band spans
-more than tenfold where a fitted ester's spans about a third. Drawn as a
-hatched, dashed band and labelled in words, so it cannot be read at a glance as
-one of the fitted esters' curves. Distinct from an ester with no curve at all,
-which is what polyestradiol phosphate has.
-_Avoid_: Estimate, projection (it is neither), dashed curve (that is how it
-looks, not what it is)
+the closed vocabulary read out of it), unsupported ester (nothing is missing -
+the published data is not good enough)
 
 **Side effect**:
 A symptom record - free-text name/type, a severity on a 1-5 ordered scale, and
