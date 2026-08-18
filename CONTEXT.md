@@ -208,9 +208,9 @@ _Avoid_: Predicted level, estimated level, simulation (all claim more than a
 band does), hormone graph
 
 **Injectable ester**:
-Which of the esters this app has a name for a **regimen episode** is on, read
-out of the episode's free-text drug and ester fields against a built-in list of
-names in both catalogue languages - the same fail-closed rule ADR-0026 applies
+Which ester a **regimen episode** is on, out of the closed list this app has
+names for. Read from the episode's free-text drug and ester fields against a
+built-in list of names in both catalogue languages - the same fail-closed rule ADR-0026 applies
 to an analyte. An unrecognized ester, or a drug that is not estradiol, gets no
 curve rather than a guessed one. Polyestradiol phosphate is recognized and has
 no curve, because no parameters this app can use have been published for it.
@@ -218,11 +218,14 @@ _Avoid_: Ester alone (that is the free-text field on a regimen episode; this is
 the closed vocabulary read out of it)
 
 **Hypothetical curve**:
-A **hormone curve** whose parameters were never fitted to data for its own
-ester. Estradiol undecylate is the only one: no published injectable study of
-it is detailed enough to fit, so its shape is borrowed from a comparable
-long-acting ester. Drawn as a hatched, dashed band and labelled in words, so it
-cannot be read at a glance as one of the fitted esters' curves.
+A **hormone curve** whose fit rests on so little data that it barely constrains
+anything. Estradiol undecylate is the only one: the published studies behind it
+are a handful of injections followed for about a fortnight, far short of an
+ester that acts for months, and its own uncertainty says so - the band spans
+more than tenfold where a fitted ester's spans about a third. Drawn as a
+hatched, dashed band and labelled in words, so it cannot be read at a glance as
+one of the fitted esters' curves. Distinct from an ester with no curve at all,
+which is what polyestradiol phosphate has.
 _Avoid_: Estimate, projection (it is neither), dashed curve (that is how it
 looks, not what it is)
 
