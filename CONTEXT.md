@@ -280,6 +280,18 @@ showing at the moment of the tap, kept for rereading later rather than
 re-derived on read - a euphoria-tagged entry edited, untagged or deleted
 afterwards must not change what a past snapshot showed.
 
+**Tryout**:
+A name or pronoun set someone is trying, with a start date and an optional
+end date once it is closed out. Several can exist at once, overlapping or
+entirely in the past - nothing treats exactly one as "the current one".
+Which entries fall inside a tryout's dates is read by date overlap alone,
+never a stored link.
+
+**Felt-sense entry**:
+One point in a tryout's running record of how it has felt, on the app's
+one **mood** scale. A tryout holds as many of these as someone adds over
+its life, not a single rating fixed when it was created.
+
 ### Vocabulary and retention
 
 **Tag**:
