@@ -411,6 +411,14 @@ shorter access during an unlocked session, but it is not the journal passphrase 
 does not provide data-preserving recovery.
 _Avoid_: Database password, encryption password
 
+**Decoy home screen**:
+The fake "Notes" home screen quick exit shows instead of a blank page while the
+app is disguised, so what covers the tab matches the notes app the disguised name
+and icon already claim. One static screen with nothing behind it: the notes on it
+are fixed copy, nothing on it names the journal, and tapping anywhere returns to
+whatever quick exit covered - with a PIN set, the lock screen.
+_Avoid_: Fake app, mini-app, decoy mode
+
 **Conversion**:
 Turning a journal written before encryption existed into an encrypted one, on the
 device that holds it. A one-time move of a whole journal, not a schema migration and
