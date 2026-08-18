@@ -267,6 +267,19 @@ or above the mood scale's midpoint, a euphoria capture logged that day, or
 either. The rule, not just a definition: on-this-day must never show a day that
 doesn't clear this bar.
 
+**Doubt entry**:
+A free-write record for a "not trans enough" spiral, timestamped and its own
+record type - no mood, dimension values, tags or note (CONTEXT: "Entry").
+Writing one surfaces the user's own past **euphoria capture**-tagged entries as
+counterevidence, reached from a persistent Home affordance rather than the
+normal new-entry flow.
+
+**Counterevidence snapshot**:
+A one-tap, saved copy of the counterevidence a doubt entry's composer was
+showing at the moment of the tap, kept for rereading later rather than
+re-derived on read - a euphoria-tagged entry edited, untagged or deleted
+afterwards must not change what a past snapshot showed.
+
 ### Vocabulary and retention
 
 **Tag**:
