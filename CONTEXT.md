@@ -27,13 +27,21 @@ _Avoid_: Metadata, lookup data, config
 
 **Entry**:
 One logged moment, carrying a mood, gender dimension values, tags, a note,
-photos, and body-region intensities. A day can hold several. Always holds at
-least one of those six; an entry with none of them does not exist.
+photos, voice recordings, and body-region intensities. A day can hold
+several. Always holds at least one of those seven; an entry with none of
+them does not exist.
 _Avoid_: Log, record, check-in (a check-in is a daily prompt, not an entry)
 
 **Photo**:
 An image belonging to exactly one entry or exactly one milestone, held in
 app-private storage and never in the device gallery.
+
+**Voice recording**:
+An in-app audio recording belonging to exactly one entry, held in the same
+app-private storage a Photo is and covered by the same per-file encryption
+(ADR-0020). Entry-only, unlike Photo: it has no milestone owner. Recorded
+without leaving the app, and played back directly from the entry view with
+no separate screen.
 
 **Epoch day**:
 Days since 1970-01-01 in the device's **local** timezone. The day an entry is
