@@ -383,6 +383,35 @@ The daily prompt to log an entry, skipped on days that already have one. A
 preference rather than a reminder: it has no name, no type and no recurrence
 choice, and cannot be deleted.
 
+### The transition roadmap
+
+**Country pack**:
+A bundled set of **roadmap goals** describing one country's transition
+procedure, compiled into the app rather than stored in the journal or fetched
+over the network. Carries the date its legal and procedural content was last
+checked against its sources, and shows it: Polish gender-recognition procedure
+changes with legislation, so a reader needs to know how old what they are
+reading is. Only the Polish pack ships, and the structure holds another
+country's content with no schema change behind it.
+_Avoid_: Locale (a pack is a country's procedure, not a language), checklist
+(the pack is the content; the checklist is what a screen makes of it)
+
+**Roadmap track**:
+One of four groupings a roadmap goal belongs to: social, legal, presentational,
+medical. A goal sits in exactly one. Nothing orders the tracks against each
+other, and no track has to be finished before another can start.
+
+**Roadmap goal**:
+One step of a country pack's procedure, ticked off or not. Independently
+checkable, which is the rule and not just a description: a goal never blocks or
+unblocks another, and the order within a track is how the procedure usually runs
+rather than something enforced. The tick is the only part that is the user's -
+named by its pack and goal keys rather than a uuid, since both mean the same
+thing on every device. Says what the procedure involves and never what someone
+should do about their own situation.
+_Avoid_: Milestone (a milestone is a dated thing that happened; a goal is a step
+that may never be taken), task, to-do
+
 ### Privacy and access
 
 **Data key**:
