@@ -196,6 +196,36 @@ other.
 _Avoid_: Pause alone (ambiguous - always a pause in dosing), break, gap (a gap
 is what a dose pause explains), stopping HRT
 
+**Hormone curve**:
+An estradiol level band over the dose log, per injectable ester, from a
+three-compartment pharmacokinetic model. Always a band and never a line: the
+parameters are a published posterior rather than a measurement, and one line
+through them would claim a precision the literature does not have. Nothing
+about it is stored - it is recomputed from the dose log and the regimen episode
+history on every read. Descriptive, like everything else in this track: no
+point on it is a target, an expected level or a normal one.
+_Avoid_: Predicted level, estimated level, simulation (all claim more than a
+band does), hormone graph
+
+**Injectable ester**:
+Which of the esters this app has a name for a **regimen episode** is on, read
+out of the episode's free-text drug and ester fields against a built-in list of
+names in both catalogue languages - the same fail-closed rule ADR-0026 applies
+to an analyte. An unrecognized ester, or a drug that is not estradiol, gets no
+curve rather than a guessed one. Polyestradiol phosphate is recognized and has
+no curve, because no parameters this app can use have been published for it.
+_Avoid_: Ester alone (that is the free-text field on a regimen episode; this is
+the closed vocabulary read out of it)
+
+**Hypothetical curve**:
+A **hormone curve** whose parameters were never fitted to data for its own
+ester. Estradiol undecylate is the only one: no published injectable study of
+it is detailed enough to fit, so its shape is borrowed from a comparable
+long-acting ester. Drawn as a hatched, dashed band and labelled in words, so it
+cannot be read at a glance as one of the fitted esters' curves.
+_Avoid_: Estimate, projection (it is neither), dashed curve (that is how it
+looks, not what it is)
+
 **Side effect**:
 A symptom record - free-text name/type, a severity on a 1-5 ordered scale, and
 an epoch day - structurally independent of the regimen episode: it carries no
