@@ -383,6 +383,20 @@ The daily prompt to log an entry, skipped on days that already have one. A
 preference rather than a reminder: it has no name, no type and no recurrence
 choice, and cannot be deleted.
 
+**Resource directory**:
+The bundled list of trans organizations, helplines and reading, shipped with the
+app rather than fetched. Trans-specific only: no general emergency or crisis
+number, since a person already knows those and listing them buries the entries
+they opened the screen for. Every entry carries a name, one line on what it
+offers, and a number or an address; the screen carries the date a person last
+checked all of them against what each organization publishes, because hours go
+stale long before numbers do. Opening it and touching anything on it makes no
+network request, which is the point: a helpline has to be readable with no
+signal. A tap hands the number to the phone or the address to the browser,
+which leaves the app.
+_Avoid_: Contact book (that is the excluded my-providers idea, and it would be
+the person's own contacts rather than a bundled list), directory of providers
+
 ### Privacy and access
 
 **Data key**:
